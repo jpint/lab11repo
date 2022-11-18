@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Display a map</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css' rel='stylesheet' />
+<style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    h2,
+    h3 {
+      margin: 10px;
+      font-size: 1.2em;
+    }
+    h3 {
+      font-size: 1em;
+    }
+    p {
+      font-size: 0.85em;
+      margin: 10px;
+      text-align: left;
+    }
+    .map-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.8);
+      margin-right: 20px;
+      font-family: Arial, sans-serif;
+      overflow: auto;
+      border-radius: 3px;
+    }
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+    #features {
+      top: 0;
+      height: 100px;
+      margin-top: 20px;
+      width: 250px;
+    }
+    #legend {
+      padding: 10px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      line-height: 18px;
+      height: 162px;
+      margin-bottom: 40px;
+      width: 250px;
+    }
+    .legend-key {
+      display: inline-block;
+      border-radius: 20%;
+      width: 10px;
+      height: 10px;
+      margin-right: 5px;
+    }
+
+</style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="map-overlay" id="features"> 
+    <h2>Building Footprint Map</h2>
+    <div id="pd"><p>Find Buildings Land Use</p></div>
+  </div>
+  <div class="map-overlay" id="legend"></div>
+
+<script>
+    // //define access token
+    mapboxgl.accessToken = 'pk.eyJ1IjoiamVubmFwaW50byIsImEiOiJjbGFjd3BvMXgwZWZ6M3FtbGV6ZXppbGQ4In0.aIsTkOZGoKjV1p-2CW6Rdg';
+    
+    //create map
+     var map = new mapboxgl.Map({
+         container: 'map', //container id
+         style: 'mapbox://styles/jennapinto/clacxi2vk001j15pl54hk1esz', //map style URL from Mapbox Studio
+         zoom: 10,
+         center: [-75.150996, 39.992945] //starting center
+     });
+    
+</script>
+
+<script>
+  // add legend to your map
+  var layers = ['Residential land:Low Density', 'Residential land:Medium Density', 'Residential land: High Density', 'Commercial land', 'Park/Open Space', 'Industrial', 'Water', 'Vacant land', 'Other'];
+    var colors = [ '#ecb709', '#e46e25', '#b71c1c', '#009688', '#4caf50', '#4937ae','#d6eaf8', '#464a45', '#701986'];
+      for (i = 0; i < layers.length; i++) {
+        var layer = layers[i];
+        var color = colors[i];
+        var item = document.createElement('div');
+        var key = document.createElement('span');
+        key.className = 'legend-key';
+        key.style.backgroundColor = color;
+        var value = document.createElement('span');
+        value.innerHTML = layer;
+        item.appendChild(key);
+        item.appendChild(value);
+        legend.appendChild(item);
+      }
+  
+  map.on('load', function () {
+      map.getCanvas().style.cursor = 'default';
+      map.fitBounds([
+          [-75.299998, 40.091772],
+          [-75.011607, 39.884492]
+        ]);
+
+  // change info window on hover
+  map.on('mousemove', function(e) {
+      var states = map.queryRenderedFeatures(e.point, {
+          layers: ['buildings-lu'] // get from the mapbox top left layer information
+         });
+          
+          if (states.length > 0) {
+            document.getElementById('pd').innerHTML =
+              '<h3><strong> Building Footprint Map:' +
+              // states[0].properties.fid +
+              '</strong></h3><p><strong><em>' +
+              states[0].properties.landuse;
+          } else {
+            document.getElementById('pd').innerHTML =
+              '<p>Find Buildings Land Use: </p>';
+        
+            }
+        });
+// Create an Empty Popup
+var popup = L.popup();
+    // Write function to set Properties of the Popup
+    function onMapClick(e) {
+        popup
+            .setLatLng(e.latlng)
+            .setContent("You clicked the map at " + e.latlng.toString())
+            .openOn(map);
+    }
+
+         // Create an Empty Popup
+    var popup = L.popup();
+    // Write function to set Properties of the Popup
+    function onMapClick(e) {
+        popup
+            .setLatLng(e.latlng)
+            .setContent("You clicked the map at " + e.latlng.toString())
+            .openOn(map);
+    }
+
+    // Listen for a click event on the Map element
+    map.on('click', onMapClick);
+
+   
+    });
+
+
+
+ // create a polygon of Philadelphia metro
+//  var myArea = L.polygon([[40.134261, -75.270050],
+//                 [40.138132, -74.888837],
+//                 [39.873212, -74.988837],
+//                 [39.859046, -75.377775]
+//                 ],
+//                 {color: 'blue', weight: 1}).addTo(map);
+                
+    // Bind popup to area object; this is the polygon polygon
+    // myArea.bindPopup("Philadelphia metro");
+
+    
+    </script>
+</body>
+</html>
